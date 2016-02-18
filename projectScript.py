@@ -9,24 +9,30 @@
 #                                           slopeCutoff = [15, 30, 45], addHydro = False, outputRast = None,
 #                                           landcoverValues = None):
 
+    # Clip all rasters by the given boundaries
+    # clipRasters( rastDEM, rastHydro, rastLandcover, boundary):
+
     # Load all rasters passed to the function
     # loadRasters( rastDEM, rastHydro, rastLandcover):
 
-    # Clip all rasters by the given boundaries
-    # rastDEM, rastHydro, rastLandcover = clipRasters( rastDEM, rastHydro, rastLandcover, boundary):
-
     # If landcover raster is present, and no values passed, have user input values for each landcover type
-    # landcoverValues = getLandcoverValues( rastLandcover)
+    # landcoverValues = getLandcoverValues( rastLandcover)       This function should return a list of values
+    #                                                                                                           for each unique value in the landcover
+    #                                                                                                           raster.
 
     # If hydrology was not passed, but desired, generate from DEM
-    # rastHydro = genHydro( rastHydro):
-
-    # Perform raster calculations on given rasters
-    # calcModel( rastDEM, rastHydro, rastLandcover, numHydroBands, hydroBandDist,
-    #                               numSlopeBands, slopeCutoff):
+    # rastHydro = genHydro( rastHydro):     This function should return a raster/shapefile conaining hydrology
 
     # If output file name not provided, generate output file name
-    # outputRast = genOutputName( rastDEM):
+    # outputRast = genOutputName( rastDEM):     This function should return a name for the output file
+
+    # Perform raster calculations on given rasters
+    # outputRast = calcModel( rastDEM, rastHydro, rastLandcover, numHydroBands, hydroBandDist,
+    #                                               numSlopeBands, slopeCutoff, outputRast):    This function should return
+    #                                                                                                                               a raster that is the result of
+    #                                                                                                                               the model calculations
+
+    # Save the output raster
 
     # If successfull, return value True and output file name
     # return True, outputRast
