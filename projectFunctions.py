@@ -78,7 +78,7 @@ def genOutputName():       #This function should return a name for the output fi
 
     return outRaster
 
-# Perform raster calculations on given rasters
+# NICK - Perform raster calculations on given rasters
 # def calcModel( rastDEM, rastHydro, rastLandcover, numHydroBands, hydroBandDist,
 #                               numSlopeBands, slopeCutoff):    This function should return
 #                                                                                           a raster that is the result of
