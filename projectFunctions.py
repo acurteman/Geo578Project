@@ -6,6 +6,18 @@ from arcpy import Clip_management, Exists
 # The first return value for each function should be a boolean value representing if the
 # function was successfull or not.
 
+# Alex:
+# Load all parameters from param file
+# def loadParams()
+
+# Nick:
+# Create hydrology buffers and convert to raster
+# def genHydroBands( hydro)
+
+# Alex:
+# If rasters are not uniform cell size, convert all to same cell size
+# def createUniformCells( DEM, hydro, landcover)
+
 # Clip all rasters by the given boundaries
 def clipRaster(inRaster, bounds):
     
@@ -45,13 +57,14 @@ def clipRaster(inRaster, bounds):
         #print('File probably exists, but was previously created incorrectly.')
         #print('Check directory for <{0}> and consider removing.'.format(outRaster))
         return False, None
-    
-# If landcover raster is present, have user input values for each landcover type
-# def getLandcoverValues( rastLandcover)    This function should return a list of values
-#                                                                               for each unique value in the landcover raster.
 
-# If hydrology was not passed, but desired, generate from DEM
-# def genHydro( rastHydro):     This function should return a raster/shapefile conaining hydrology
+# Nick:
+# Convert DEM to slope
+# genSlope( DEM)
+
+# Alex:
+# Convert rasters to weights
+# def convertRaster( slope, hydro, landcover)
 
 # If output file name not provided, generate output file name
 def genOutputName():       #This function should return a name for the output file
