@@ -1,0 +1,10 @@
+rastDEM: fileNameHere
+rastHydro: fileNameHere
+rastLandcover: fileNameHere
+boundary: boundariesHere
+numHydroBands: 3
+hydroBandDist: 100
+numSlopeBands: 4
+slopeCutoff: [15,30,45]
+outputRast: archPredMod.shp
+landcoverValues: {1:0, 2:1, 3:2}

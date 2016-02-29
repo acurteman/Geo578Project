@@ -2,22 +2,63 @@
 
 # Import needed modules
 from arcpy import Clip_management, Exists
+import os
 
 # The first return value for each function should be a boolean value representing if the
 # function was successfull or not.
 
+#######################################
 # Alex:
 # Load all parameters from param file
-# def loadParams()
+def ReadParamFileGeneric(paramfile):
+    
+    # test if the file exists
+    if not(os.path.isfile(paramfile)):
+        print("This file not found: "+paramfile)
+        return False, None     
+    
+    #set up a blank dictionary value
+    params={}
+    
+    try:
+        with open(paramfile) as f:
+            
+            for line in f:
+                check=line.split(": ")
+                #if the result has exactly two values, we know we've found one
+                #match.  Add this to the dictionary           
+                
+                if len(check) == 2:
+                    #by assignment, the dictionary grows
+                    #We also need to make sure that any leading spaces are cleanedup 
+                    params[check[0]]=check[1].strip()
+                    
+    except:   # we get here if it couldn't open the file
+        
+        print("Problem reading the paramfile: "+paramfile)
+        return False, None
+   
+    #return the dictionary value, along with a success flag
+    return True, params
+#######################################
 
+#######################################
 # Nick:
-# Create hydrology buffers and convert to raster
-# def genHydroBands( hydro)
+# Convert hydrology shapefile to raster, then calculate distance.
+# This can probably be done easily by creating a cost distance
+# raster. First convert the hydrology to a raster, then do
+# a cost distance analysis. 
+def genHydroRast( vectHydro):
+    # Code stuffs goes here
+#######################################
 
+#######################################
 # Alex:
 # If rasters are not uniform cell size, convert all to same cell size
 # def createUniformCells( DEM, hydro, landcover)
+#######################################
 
+#######################################
 # Clip all rasters by the given boundaries
 def clipRaster(inRaster, bounds):
     
@@ -57,15 +98,26 @@ def clipRaster(inRaster, bounds):
         #print('File probably exists, but was previously created incorrectly.')
         #print('Check directory for <{0}> and consider removing.'.format(outRaster))
         return False, None
+########################################
 
+########################################
 # Nick:
 # Convert DEM to slope
-# genSlope( DEM)
+def genSlope( DEM):
+    # Inster code stuffs here
+########################################
 
+########################################
 # Alex:
 # Convert rasters to weights
-# def convertRaster( slope, hydro, landcover)
+def convertSlope( rastSlope, numSlopeBands, SlopeCutoff):
 
+def convertHydro( rastHydro):
+
+def convertLandcover( rastLandcover, landcoverValues):
+########################################
+
+########################################
 # If output file name not provided, generate output file name
 def genOutputName():       #This function should return a name for the output file
 
@@ -90,9 +142,10 @@ def genOutputName():       #This function should return a name for the output fi
             clipCount += 1
 
     return outRaster
+#######################################
 
+#######################################
 # NICK - Perform raster calculations on given rasters
-# def calcModel( rastDEM, rastHydro, rastLandcover, numHydroBands, hydroBandDist,
-#                               numSlopeBands, slopeCutoff):    This function should return
-#                                                                                           a raster that is the result of
-#                                                                                           the model calculations
+def calcModel( rastDEM, rastHydro, rastLandcover):
+    # Insert code stuffs here
+#######################################
