@@ -203,7 +203,7 @@ def calcModel( rastDEM, rastHydro, rastLandcover):
 
     try:
 	r1 = sa.raster(rastHydrocost)
-	r2 = sa.raster(rastDEM)
+	r2 = sa.raster(rastSlope)
 	r3 = sa.raster(rastLandcover)
         results = r1 * r2 * r3
 	outfile = outputRast
