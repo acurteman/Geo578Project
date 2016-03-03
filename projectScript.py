@@ -38,7 +38,7 @@ def createArchModel( paramFile):
 
     ######################################
     # Genereate hydrology raster here
-    rastHydro = genHydroRast(vectHydro, rastSlope)
+    rastHydroCost = genHydroRast(vectHydro, rastSlope)
     ######################################
 
     ######################################
@@ -54,7 +54,7 @@ def createArchModel( paramFile):
 
     # Clip Hydrology
     print('Attempting Hydrology clip.')
-    ok, clipHydro = clipRaster( rastHydro, boundary)
+    ok, clipHydro = clipRaster( rastHydroCost, boundary)
 
     # Check for errors, exit if needed
     if not ok:
@@ -90,7 +90,7 @@ def createArchModel( paramFile):
 
     ########################################
     # Perform raster calculations on given rasters
-    # outputRast = calcModel( rastDEM, rastHydro, rastLandcover)
+    outputRast = calcModel( weightSlope, weightHydro, weightLandcover)
     ########################################
     
     # Save the output raster
