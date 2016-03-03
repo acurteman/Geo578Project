@@ -1,7 +1,7 @@
 # Functions for final project go here.
 
 # Import needed modules
-from arcpy import Clip_management, Exists, Reclassify, sa, slope_3d, featuretoraster_conversion
+from arcpy import Clip_management, Exists, Reclassify, sa, slope_3d, featuretoraster_conversion, CostDistance
 import os
 
 # The first return value for each function should be a boolean value representing if the
@@ -63,9 +63,14 @@ def genHydroRast( vectHydro):
 
         print("Problem reading the paramfile: "+vectHydro)
         return False, None
-
+    try:
+    	costDist = cost.distance(rastHydro, rastSlope)
+    	costDist.save(rastHydrocost)
+    except:
+    	print("Problem running cost distance.")
+    	return False, None
     #return the dictionary value, along with a success flag
-    return True, rastHydro
+    return True, rastHydrocost
 
 #######################################
 
