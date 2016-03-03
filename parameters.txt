@@ -1,11 +1,10 @@
 rastDEM: fileNameHere
+vectHydro: fileNameHere
 rastHydro: fileNameHere
 rastHydroCost: fileNameHere
 rastLandcover: fileNameHere
 rastSlope: fileNameHere
 boundary: boundariesHere
-numHydroBands: 3
-hydroBandDist: 100
 slopeCutoff: [15,30,45]
 hydroCutoff: [15,30,45]
 outputRast: archPredMod.shp
