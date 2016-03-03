@@ -35,12 +35,12 @@ def createArchModel( paramFile):
 
     ########################################
     # Convert DEM to slope here:
-    ok, rastSlope = genSlope(rastDEM)
+    ok, rastSlope = genSlope(rastDEM, rastSlope)
     ########################################
 
     ######################################
     # Genereate hydrology raster here
-    rastHydroCost = genHydroRast(vectHydro, rastSlope)
+    rastHydroCost = genHydroRast(vectHydro, rastSlope, rastHydro)
     ######################################
 
     ######################################
@@ -79,7 +79,7 @@ def createArchModel( paramFile):
     
     okSlope, weightSlope = convertSlope( rastSlope, field, slopeCutoff)
 
-    okHydro, weightHydro = convertHydro( rastHydro, field, hydroCutoff)
+    okHydro, weightHydro = convertHydro( rastHydroCost, field, hydroCutoff)
 
     okLC, weightLandcover = convertLandcover( rastLandcover, field, landcoverValues)
     ########################################
