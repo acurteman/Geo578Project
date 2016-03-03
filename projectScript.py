@@ -17,14 +17,16 @@ def createArchModel( paramFile):
     if ok:
         rastDEM = paramDict['rastDEM']
         vectHydro = paramDict['vectHydro']
+        rastHydro = paramDict['rastHydro']
+        rastHydroCost = paramDict['rastHydroCost']
         rastLandcover = paramDict['rastLandcover']
+        rastSlope = paramDict['rastSlope']
         boundary = paramDict[boundary]
-        numHydroBands = paramDict['numHydroBands']
-        hydroBandDist = paramDict['hydroBandDist']
         slopeCutoff = paramDict['slopeCutoff']
         hydroCutoff = paramDict['hydroCutoff']
         outputRast = paramDict['outputRast']
         landcoverValues = paramDict['landcoverValues']
+        cellSize = paramDict['landcoverValues']
 
     else:
         print('Error loading parameters')
