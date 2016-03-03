@@ -1,5 +1,6 @@
 rastDEM: fileNameHere
 rastHydro: fileNameHere
+rastHydroCost: fileNameHere
 rastLandcover: fileNameHere
 rastSlope: fileNameHere
 boundary: boundariesHere
