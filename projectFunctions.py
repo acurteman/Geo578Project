@@ -1,7 +1,7 @@
 # Functions for final project go here.
 
 # Import needed modules
-from arcpy import Clip_management, Exists, Reclassify
+from arcpy import Clip_management, Exists, Reclassify, sa, slope_3d, featuretoraster_conversion
 import os
 
 # The first return value for each function should be a boolean value representing if the
@@ -56,7 +56,7 @@ def genHydroRast( vectHydro):
         return False, None
 
     try:
-        arcpy.FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
+        FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
         print('rastHydro_Created')
 
     except:   # we get here if it couldn't open the file
@@ -128,7 +128,7 @@ def genSlope( DEM):
         return False, None
 
     try:
-        arcpy.slope_3D(rastDEM, rastSlope, DEGREE)
+        slope_3D(rastDEM, rastSlope, DEGREE)
         print('rastSlope_Created')
 
     except:   # we get here if it couldn't open the file
@@ -184,5 +184,31 @@ def genOutputName():       #This function should return a name for the output fi
 #######################################
 # NICK - Perform raster calculations on given rasters
 def calcModel( rastDEM, rastHydro, rastLandcover):
-    # Insert code stuffs here
+    # test if the file exists
+    if not(os.path.isfile(rastHydro)):
+        print("This file not found: "+rastHydro)
+        return False, None
+    elif not(os.path.isfile(rastDEM)):
+        print("This file not found: "+rastDEM)
+        return False, None
+        
+    elif not(os.path.isfile(rastLandcover)):
+        print("This file not found: "+rastLandcover)
+        return False, None
+
+    try:
+	r1 = sa.raster(rastHydro)
+	r2 = sa.raster(rastDEM)
+	r3 = sa.raster(rastLandcover)
+        results = r1 * r2 * r3
+	outfile = outputRast
+	result.save(outfile)
+	
+    except:   # we get here if it couldn't open the file
+
+        print("Problem doing maths.)
+        return False, None
+
+    #return the dictionary value, along with a success flag
+    return True, outfile
 #######################################
