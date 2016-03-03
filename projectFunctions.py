@@ -48,7 +48,7 @@ def ReadParamFileGeneric(paramfile):
 # This can probably be done easily by creating a cost distance
 # raster. First convert the hydrology to a raster, then do
 # a cost distance analysis. 
-def genHydroRast( vectHydro):
+def genHydroRast(vectHydro, rastSlope):
 
     # test if the file exists
     if not(os.path.isfile(vectHydro)):
@@ -65,7 +65,7 @@ def genHydroRast( vectHydro):
         return False, None
     try:
     	costDist = cost.distance(rastHydro, rastSlope)
-    	costDist.save(rastHydrocost)
+    	costDist.save(rastHydroCost)
     except:
     	print("Problem running cost distance.")
     	return False, None
@@ -188,13 +188,13 @@ def genOutputName():       #This function should return a name for the output fi
 
 #######################################
 # NICK - Perform raster calculations on given rasters
-def calcModel( rastDEM, rastHydro, rastLandcover):
+def calcModel( rastSlope, rastHydroCost, rastLandcover):
     # test if the file exists
-    if not(os.path.isfile(rastHydro)):
-        print("This file not found: "+rastHydro)
+    if not(os.path.isfile(rastHydroCost)):
+        print("This file not found: "+rastHydroCost)
         return False, None
-    elif not(os.path.isfile(rastDEM)):
-        print("This file not found: "+rastDEM)
+    elif not(os.path.isfile(rastSlope)):
+        print("This file not found: "+rastSlope)
         return False, None
         
     elif not(os.path.isfile(rastLandcover)):
@@ -202,7 +202,7 @@ def calcModel( rastDEM, rastHydro, rastLandcover):
         return False, None
 
     try:
-	r1 = sa.raster(rastHydrocost)
+	r1 = sa.raster(rastHydroCost)
 	r2 = sa.raster(rastSlope)
 	r3 = sa.raster(rastLandcover)
         results = r1 * r2 * r3
