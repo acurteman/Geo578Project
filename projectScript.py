@@ -31,9 +31,14 @@ def createArchModel( paramFile):
         return False, None
     ######################################
 
+    ########################################
+    # Convert DEM to slope here:
+    ok, rastSlope = genSlope(rastDEM)
+    ########################################
+
     ######################################
     # Genereate hydrology raster here
-    rastHydro = genHydroRast( vectHydro)
+    rastHydro = genHydroRast(vectHydro, rastSlope)
     ######################################
 
     ######################################
@@ -64,11 +69,6 @@ def createArchModel( paramFile):
     if not ok:
         print('Error with Land cover clip.')
         return False, None
-    ########################################
-
-    ########################################
-    # Convert DEM to slope here:
-    # Insert code stuffs
     ########################################
 
     ########################################
