@@ -128,7 +128,7 @@ def genSlope( DEM):
         return False, None
 
     try:
-        arcpy.FeatureToRaster_conversion(rastDEM, rastSlope, DEGREE)
+        arcpy.slope_3D(rastDEM, rastSlope, DEGREE)
         print('rastSlope_Created')
 
     except:   # we get here if it couldn't open the file
