@@ -48,7 +48,7 @@ def ReadParamFileGeneric(paramfile):
 # This can probably be done easily by creating a cost distance
 # raster. First convert the hydrology to a raster, then do
 # a cost distance analysis. 
-def genHydroRast(vectHydro, rastSlope):
+def genHydroRast(vectHydro, rastSlope, rastHydro):
 
     # test if the file exists
     if not(os.path.isfile(vectHydro)):
@@ -125,7 +125,7 @@ def clipRaster(inRaster, bounds):
 ########################################
 # Nick:
 # Convert DEM to slope
-def genSlope( DEM):
+def genSlope( rastDEM, rastSlope):
 
     # test if the file exists
     if not(os.path.isfile(rastDEM)):
