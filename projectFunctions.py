@@ -1,7 +1,7 @@
 # Functions for final project go here.
 
 # Import needed modules
-from arcpy import Clip_management, Exists
+from arcpy import Clip_management, Exists, Reclassify
 import os
 
 # The first return value for each function should be a boolean value representing if the
@@ -110,11 +110,14 @@ def genSlope( DEM):
 ########################################
 # Alex:
 # Convert rasters to weights
-def convertSlope( rastSlope, numSlopeBands, SlopeCutoff):
+def rastReclassify( inRaster, field, remap):
+    try:
+        output = Reclassify (inRaster, field, remap, {missing_values})
+    except:
+        print('Error with Reclassify')
+        return False, None
 
-def convertHydro( rastHydro):
-
-def convertLandcover( rastLandcover, landcoverValues):
+    return True, output
 ########################################
 
 ########################################

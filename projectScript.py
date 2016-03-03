@@ -21,8 +21,8 @@ def createArchModel( paramFile):
         boundary = paramDict[boundary]
         numHydroBands = paramDict['numHydroBands']
         hydroBandDist = paramDict['hydroBandDist']
-        numSlopBands = paramDict['numSlopeBands']
         slopeCutoff = paramDict['slopeCutoff']
+        hydroCutoff = paramDict['hydroCutoff']
         outputRast = paramDict['outputRast']
         landcoverValues = paramDict['landcoverValues']
 
@@ -73,11 +73,13 @@ def createArchModel( paramFile):
 
     ########################################
     # Reclassify each raster according to weights
-    okSlope, weightSlope = convertSlope( rastSlope, numSlopeBands, slopeCutoff)
+    field = "Value"
+    
+    okSlope, weightSlope = convertSlope( rastSlope, field, slopeCutoff)
 
-    okHydro, weightHydro = convertHydro( rastHydro)
+    okHydro, weightHydro = convertHydro( rastHydro, field, hydroCutoff)
 
-    okLC, weightLandcover = convertLandcover( rastLandcover, landcoverValues)
+    okLC, weightLandcover = convertLandcover( rastLandcover, field, landcoverValues)
     ########################################
 
     ########################################
