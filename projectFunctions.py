@@ -49,7 +49,24 @@ def ReadParamFileGeneric(paramfile):
 # raster. First convert the hydrology to a raster, then do
 # a cost distance analysis. 
 def genHydroRast( vectHydro):
-    # Code stuffs goes here
+
+    # test if the file exists
+    if not(os.path.isfile(vectHydro)):
+        print("This file not found: "+vectHydro)
+        return False, None
+
+    try:
+        arcpy.FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
+        print('rastHydro_Created')
+
+    except:   # we get here if it couldn't open the file
+
+        print("Problem reading the paramfile: "+vectHydro)
+        return False, None
+
+    #return the dictionary value, along with a success flag
+    return True, rastHydro
+
 #######################################
 
 #######################################
@@ -104,7 +121,24 @@ def clipRaster(inRaster, bounds):
 # Nick:
 # Convert DEM to slope
 def genSlope( DEM):
-    # Inster code stuffs here
+
+    # test if the file exists
+    if not(os.path.isfile(rastDEM)):
+        print("This file not found: "+rastDEM)
+        return False, None
+
+    try:
+        arcpy.FeatureToRaster_conversion(rastDEM, rastSlope, DEGREE)
+        print('rastSlope_Created')
+
+    except:   # we get here if it couldn't open the file
+
+        print("Problem reading the paramfile: "+rastDEM)
+        return False, None
+
+    #return the dictionary value, along with a success flag
+    return True, rastSlope
+
 ########################################
 
 ########################################
