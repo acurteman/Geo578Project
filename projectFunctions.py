@@ -1,11 +1,39 @@
 # Functions for final project go here.
 
 # Import needed modules
-from arcpy import Clip_management, Exists, Reclassify, sa, slope_3d, featuretoraster_conversion, CostDistance
+from arcpy import CheckOutExtension, CheckInExtension, Clip_management, Exists, sa, Slope_3d, FeatureToRaster_conversion, Raster, Describe
 import os
+
+CheckOutExtension('3D')
+CheckOutExtension('Spatial')
 
 # The first return value for each function should be a boolean value representing if the
 # function was successfull or not.
+
+#######################################
+def getBounds(feature_or_raster):
+    # check existence, as always
+    if Exists(feature_or_raster) ==0:
+        print "File does not exist to get bounds"
+        print feature_or_raster
+        return False, None
+    
+    # Use the describe function to pull out the pieces we want
+    
+    try:
+        d=Describe(feature_or_raster)
+        xmin=str(d.Extent.XMin)
+        xmax=str(d.Extent.XMax)
+        ymin=str(d.Extent.YMin)
+        ymax=str(d.Extent.YMax)
+    except:
+        print "Problem obtaining spatial information from file"
+        return False, None
+    
+    
+    #  bring it back
+    return True, xmin+" "+ymin+" "+xmax+" "+ymax
+#######################################
 
 #######################################
 # Alex:
@@ -48,29 +76,39 @@ def ReadParamFileGeneric(paramfile):
 # This can probably be done easily by creating a cost distance
 # raster. First convert the hydrology to a raster, then do
 # a cost distance analysis. 
-def genHydroRast(vectHydro, rastSlope, rastHydro):
+def genHydroRast(vectHydro, rastSlope, rastHydro, cellSize, rastHydroCost):
 
     # test if the file exists
     if not(os.path.isfile(vectHydro)):
         print("This file not found: "+vectHydro)
         return False, None
-
-    try:
-        FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
-        print('rastHydro_Created')
-
-    except:   # we get here if it couldn't open the file
-
-        print("Problem reading the paramfile: "+vectHydro)
-        return False, None
-    try:
-    	costDist = cost.distance(rastHydro, rastSlope)
-    	costDist.save(rastHydroCost)
-    except:
-    	print("Problem running cost distance.")
-    	return False, None
+    
+    if not Exists(rastHydro):
+	try:
+	    FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
+	    print('rastHydro_Created')
+	
+	except:   # we get here if it couldn't open the file
+	
+	    print("Problem with FeatureToRaster_conversion")
+	    return False, None
+    
+    else:
+	print('rastHydro already exists, skipping')
+    
+    if not Exists(rastHydroCost):
+	try:
+	    costDist = sa.CostDistance(rastHydro, rastSlope)
+	    costDist.save(rastHydroCost)
+	except:
+	    print("Problem running cost distance.")
+	    return False, None
+    
+    else:
+	print('rastHydroCost already exists, skipping.')
+    
     #return the dictionary value, along with a success flag
-    return True, rastHydrocost
+    return True, rastHydroCost
 
 #######################################
 
@@ -82,44 +120,25 @@ def genHydroRast(vectHydro, rastSlope, rastHydro):
 
 #######################################
 # Clip all rasters by the given boundaries
-def clipRaster(inRaster, bounds):
-    
-    # Create file name for output raster
-    outRaster = inRaster + '_CLIP'
-    outLen = len(outRaster)
-    clipCount = 1
+def clipRaster(inRaster, bounds, outRaster):
 
-    # Check if output filename exists already, and correct if so
-    validName = False
-    while not validName:
-
-        # If it does not exist, name is valid
-        if Exists(outRaster) ==0:
-            #print('Output filename: {0}'.format(outRaster))
-            validName = True
-
-        # Else add number to end of output name and check again
-        else:
-            print('File <{0}> already exists, incrementing file name.'.format(outRaster))
-            outRaster = outRaster[:outLen] + str(clipCount)
-            clipCount += 1
-
-    # Print out parameters to be used in Clip_management
-    #print('Attempting Clip with following parameters: \n    ' +
-          #'in_raster: {0}\n    rectange: {1}\n    out_raster: {2}'.format(
-              #inRaster, bounds, outRaster))
-
+    if not Exists(outRaster):
     # Attempt to execute Clip_management
-    try:
-        Clip_management(inRaster, bounds, outRaster)
-        return True, outRaster
-
-    # If Clip_management failed:
-    except:
-        #print('Error with Clip_management tool')
-        #print('File probably exists, but was previously created incorrectly.')
-        #print('Check directory for <{0}> and consider removing.'.format(outRaster))
-        return False, None
+	try:
+	    print(outRaster)
+	    Clip_management(inRaster, bounds, outRaster)
+	    return True, outRaster
+    
+	# If Clip_management failed:
+	except:
+	    #print('Error with Clip_management tool')
+	    #print('File probably exists, but was previously created incorrectly.')
+	    #print('Check directory for <{0}> and consider removing.'.format(outRaster))
+	    return False, None
+    
+    else:
+	print('Raster already exists, skipping')
+	return True, outRaster
 ########################################
 
 ########################################
@@ -131,14 +150,16 @@ def genSlope( rastDEM, rastSlope):
     if not(os.path.isfile(rastDEM)):
         print("This file not found: "+rastDEM)
         return False, None
+    elif Exists(rastSlope):
+	print('Output already exists, skipping slope function')
+	return True, rastSlope
 
     try:
-        slope_3D(rastDEM, rastSlope, DEGREE)
-        print('rastSlope_Created')
+	Slope_3d(rastDEM, rastSlope, 'DEGREE')
+	print('rastSlope_Created')
 
     except:   # we get here if it couldn't open the file
-
-        print("Problem reading the paramfile: "+rastDEM)
+        print("Problem with Slope_3D")
         return False, None
 
     #return the dictionary value, along with a success flag
@@ -151,7 +172,7 @@ def genSlope( rastDEM, rastSlope):
 # Convert rasters to weights
 def rastReclassify( inRaster, field, remap):
     try:
-        output = Reclassify (inRaster, field, remap, {missing_values})
+        output = sa.Reclassify (inRaster, field, remap, {missing_values})
     except:
         print('Error with Reclassify')
         return False, None
@@ -202,16 +223,16 @@ def calcModel( rastSlope, rastHydroCost, rastLandcover):
         return False, None
 
     try:
-	r1 = sa.raster(rastHydroCost)
-	r2 = sa.raster(rastSlope)
-	r3 = sa.raster(rastLandcover)
+	r1 = sa.Raster(rastHydroCost)
+	r2 = sa.Raster(rastSlope)
+	r3 = sa.Raster(rastLandcover)
         results = r1 * r2 * r3
 	outfile = outputRast
 	result.save(outfile)
 	
     except:   # we get here if it couldn't open the file
 
-        print("Problem doing maths.)
+        print("Problem doing maths.")
         return False, None
 
     #return the dictionary value, along with a success flag

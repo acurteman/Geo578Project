@@ -1,7 +1,8 @@
 # Main script for project goes in this file.
 
 # Import needed modules:
-from projectFuctions import *
+from projectFunctions import *
+from arcpy import env
 
 # Define function name and arguments. Possible inputs: DEM, hydrology file, Landcover file,
 # bounding box to clip all rasters, number of hydrology bands, distance of hydrology bands,
@@ -15,24 +16,42 @@ def createArchModel( paramFile):
 
     # Assign variables
     if ok:
-        rastDEM = paramDict['rastDEM']
-        vectHydro = paramDict['vectHydro']
-        rastHydro = paramDict['rastHydro']
-        rastHydroCost = paramDict['rastHydroCost']
-        rastLandcover = paramDict['rastLandcover']
-        rastSlope = paramDict['rastSlope']
-        boundary = paramDict[boundary]
-        slopeCutoff = paramDict['slopeCutoff']
-        hydroCutoff = paramDict['hydroCutoff']
-        outputRast = paramDict['outputRast']
-        landcoverValues = paramDict['landcoverValues']
-        cellSize = paramDict['landcoverValues']
+        rastDEM = paramDict['rastDEM'] # File name of the DEM
+        vectHydro = paramDict['vectHydro'] # File name of the hydrology shapefile
+        rastHydro = paramDict['rastHydro'] # File name of the hydrology raster that will be generated
+        rastHydroCost = paramDict['rastHydroCost'] # File name of the cost distance raster to be generated
+        rastLandcover = paramDict['rastLandcover'] # File name of the NLCD raster
+        rastSlope = paramDict['rastSlope'] # File name of the slope raster to be generated
+        boundFile = paramDict['boundary'] # File name of the feature to be used to extract boundaries
+        slopeCutoff = paramDict['slopeCutoff'] # List of slope conversion boundaries
+        hydroCutoff = paramDict['hydroCutoff'] # List of cost distance conversion boundaries
+        outputRast = paramDict['outputRast'] # Name of the final output raster
+        landcoverValues = paramDict['landcoverValues'] # List of landcover conversion values
+        cellSize = paramDict['cellSize'] # Cell size to standardize to
+        workDir = paramDict['wd'] # Directory path to the directory with needed files
+        
+        print('rastDEM: {0} \nvectHydro: {1} \nrastHydro: {2} \nrastHydroCost: {3} \nrastLandcover: {4} \nrastSlope: {5} \nboundFile: {6} \nslopeCutoff: {7} \nhydroCutoff: {8} \noutputRast: {9} \nlandcoverValues: {10} \ncellSize: {11} \nworkDir: {12}'.format(rastDEM, vectHydro, rastHydro, rastHydroCost, rastLandcover, rastSlope, boundFile, slopeCutoff, hydroCutoff, outputRast, landcoverValues, cellSize, workDir))
 
     else:
         print('Error loading parameters')
         return False, None
     ######################################
-
+    
+    ######################################
+    env.workspace = workDir
+    ######################################
+    
+    ######################################
+    print('Getting boundaries')
+    try:
+        ok, boundary = getBounds(boundFile)
+    except:
+        print('Error with getBounds')
+        return False, None
+    
+    print(boundary)
+    ######################################
+    
     ########################################
     # Convert DEM to slope here:
     ok, rastSlope = genSlope(rastDEM, rastSlope)
@@ -40,14 +59,15 @@ def createArchModel( paramFile):
 
     ######################################
     # Genereate hydrology raster here
-    rastHydroCost = genHydroRast(vectHydro, rastSlope, rastHydro)
+    ok, rastHydroCost = genHydroRast(vectHydro, rastSlope, rastHydro, cellSize, rastHydroCost)
     ######################################
 
     ######################################
     # Clip all rasters by the given boundaries
-    # Clipping the DEM
-    print('Attempting DEM clip.')
-    ok, clipDEM = clipRaster( rastDEM, boundary):
+
+    # Clipping the Slope
+    print('Attempting Slope clip.')
+    ok, clipSlope = clipRaster( rastSlope, boundary, 'clipSlope')
 
     #Check for errors, exit if needed
     if not ok:
@@ -56,7 +76,7 @@ def createArchModel( paramFile):
 
     # Clip Hydrology
     print('Attempting Hydrology clip.')
-    ok, clipHydro = clipRaster( rastHydroCost, boundary)
+    ok, clipHydro = clipRaster( rastHydroCost, boundary, 'clipHydro')
 
     # Check for errors, exit if needed
     if not ok:
@@ -65,7 +85,7 @@ def createArchModel( paramFile):
         
     # Clip landcover
     print('Attempting Land cover clip.')
-    ok, clipLandcover = clipRaster( rastLandcover, boundary)
+    ok, clipLandcover = clipRaster( rastLandcover, boundary, 'clipLandcover')
 
     # Check for errors, exit if needed
     if not ok:
@@ -87,7 +107,7 @@ def createArchModel( paramFile):
     ########################################
     # If output file name not provided, generate output file name
     if outputRast == None:
-        outputRast = genOutputName():     #This function should return a name for the output file
+        outputRast = genOutputName()     #This function should return a name for the output file
     ########################################
 
     ########################################
@@ -101,3 +121,5 @@ def createArchModel( paramFile):
     return True, outputRast
 
     
+params = 'parameters.txt'
+createArchModel(params)
