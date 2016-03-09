@@ -1,7 +1,7 @@
 # Functions for final project go here.
 
 # Import needed modules
-from arcpy import CheckOutExtension, CheckInExtension, Clip_management, Exists, sa, Slope_3d, FeatureToRaster_conversion, Raster, Describe
+from arcpy import Reclassify_3d, CheckOutExtension, CheckInExtension, Clip_management, Exists, sa, Slope_3d, FeatureToRaster_conversion, Raster, Describe
 import os
 
 CheckOutExtension('3D')
@@ -84,28 +84,28 @@ def genHydroRast(vectHydro, rastSlope, rastHydro, cellSize, rastHydroCost):
         return False, None
     
     if not Exists(rastHydro):
-	try:
-	    FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
-	    print('rastHydro_Created')
-	
-	except:   # we get here if it couldn't open the file
-	
-	    print("Problem with FeatureToRaster_conversion")
-	    return False, None
+        try:
+            FeatureToRaster_conversion(vectHydro, "FID", rastHydro, cellSize)
+            print('rastHydro_Created')
+    
+        except:   # we get here if it couldn't open the file
+    
+            print("Problem with FeatureToRaster_conversion")
+            return False, None
     
     else:
-	print('rastHydro already exists, skipping')
+        print('rastHydro already exists, skipping')
     
     if not Exists(rastHydroCost):
-	try:
-	    costDist = sa.CostDistance(rastHydro, rastSlope)
-	    costDist.save(rastHydroCost)
-	except:
-	    print("Problem running cost distance.")
-	    return False, None
+        try:
+            costDist = sa.CostDistance(rastHydro, rastSlope)
+            costDist.save(rastHydroCost)
+        except:
+            print("Problem running cost distance.")
+            return False, None
     
     else:
-	print('rastHydroCost already exists, skipping.')
+        print('rastHydroCost already exists, skipping.')
     
     #return the dictionary value, along with a success flag
     return True, rastHydroCost
@@ -124,21 +124,21 @@ def clipRaster(inRaster, bounds, outRaster):
 
     if not Exists(outRaster):
     # Attempt to execute Clip_management
-	try:
-	    print(outRaster)
-	    Clip_management(inRaster, bounds, outRaster)
-	    return True, outRaster
+        try:
+            print(outRaster)
+            Clip_management(inRaster, bounds, outRaster)
+            return True, outRaster
     
-	# If Clip_management failed:
-	except:
-	    #print('Error with Clip_management tool')
-	    #print('File probably exists, but was previously created incorrectly.')
-	    #print('Check directory for <{0}> and consider removing.'.format(outRaster))
-	    return False, None
+        # If Clip_management failed:
+        except:
+            #print('Error with Clip_management tool')
+            #print('File probably exists, but was previously created incorrectly.')
+            #print('Check directory for <{0}> and consider removing.'.format(outRaster))
+            return False, None
     
     else:
-	print('Raster already exists, skipping')
-	return True, outRaster
+        print('Raster already exists, skipping')
+        return True, outRaster
 ########################################
 
 ########################################
@@ -151,12 +151,12 @@ def genSlope( rastDEM, rastSlope):
         print("This file not found: "+rastDEM)
         return False, None
     elif Exists(rastSlope):
-	print('Output already exists, skipping slope function')
-	return True, rastSlope
+        print('Output already exists, skipping slope function')
+        return True, rastSlope
 
     try:
-	Slope_3d(rastDEM, rastSlope, 'DEGREE')
-	print('rastSlope_Created')
+        Slope_3d(rastDEM, rastSlope, 'DEGREE')
+        print('rastSlope_Created')
 
     except:   # we get here if it couldn't open the file
         print("Problem with Slope_3D")
@@ -170,12 +170,20 @@ def genSlope( rastDEM, rastSlope):
 ########################################
 # Alex:
 # Convert rasters to weights
-def rastReclassify( inRaster, field, remap):
-    try:
-        output = sa.Reclassify (inRaster, field, remap, {missing_values})
-    except:
-        print('Error with Reclassify')
-        return False, None
+def rastReclassify( inRaster, field, remap, outRast):
+    if not Exists(outRast):
+        #try:
+        print(inRaster)
+        print(field)
+        print(remap)
+        print(outRast)
+        output = Reclassify_3d(inRaster, field, remap, outRast, "NODATA")
+        #except:
+            #print('Error with Reclassify')
+            #return False, None
+    else:
+        print('{0} already exists, skipping reclassify'.format(outRast))
+        return True, outRast
 
     return True, output
 ########################################
@@ -209,32 +217,36 @@ def genOutputName():       #This function should return a name for the output fi
 
 #######################################
 # NICK - Perform raster calculations on given rasters
-def calcModel( rastSlope, rastHydroCost, rastLandcover):
+def calcModel( rastSlope, rastHydroCost, rastLandcover, outputRast):
     # test if the file exists
-    if not(os.path.isfile(rastHydroCost)):
+    if not(Exists(rastHydroCost)):
         print("This file not found: "+rastHydroCost)
         return False, None
-    elif not(os.path.isfile(rastSlope)):
+    elif not(Exists(rastSlope)):
         print("This file not found: "+rastSlope)
         return False, None
         
-    elif not(os.path.isfile(rastLandcover)):
+    elif not(Exists(rastLandcover)):
         print("This file not found: "+rastLandcover)
         return False, None
 
-    try:
-	r1 = sa.Raster(rastHydroCost)
-	r2 = sa.Raster(rastSlope)
-	r3 = sa.Raster(rastLandcover)
-        results = r1 * r2 * r3
-	outfile = outputRast
-	result.save(outfile)
-	
-    except:   # we get here if it couldn't open the file
+    if not Exists(outputRast):
+        try:
+            r1 = sa.Raster(rastHydroCost)
+            r2 = sa.Raster(rastSlope)
+            r3 = sa.Raster(rastLandcover)
+            results = r1 * r2 * r3
+            results.save(outputRast)
+        
+        except:   # we get here if it couldn't open the file
 
-        print("Problem doing maths.")
-        return False, None
+            print("Problem doing maths.")
+            return False, None
 
-    #return the dictionary value, along with a success flag
-    return True, outfile
+    else:
+        print('Output model already exists.')
+        return True, outputRast
+
+    #return the output filename, along with a success flag
+    return True, outputRast
 #######################################

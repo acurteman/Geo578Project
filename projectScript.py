@@ -54,11 +54,13 @@ def createArchModel( paramFile):
     
     ########################################
     # Convert DEM to slope here:
+    print('Converting DEM to slope.')
     ok, rastSlope = genSlope(rastDEM, rastSlope)
     ########################################
 
     ######################################
     # Genereate hydrology raster here
+    print('Generating Hydrology cost distance raster.')
     ok, rastHydroCost = genHydroRast(vectHydro, rastSlope, rastHydro, cellSize, rastHydroCost)
     ######################################
 
@@ -95,13 +97,20 @@ def createArchModel( paramFile):
 
     ########################################
     # Reclassify each raster according to weights
-    field = "Value"
-    
-    okSlope, weightSlope = convertSlope( rastSlope, field, slopeCutoff)
+    field = "VALUE"
 
-    okHydro, weightHydro = convertHydro( rastHydroCost, field, hydroCutoff)
+    print('Reclassifying slope raster.')
+    okSlope, weightSlope = rastReclassify( clipSlope, field, slopeCutoff, 'weightSlope')
 
-    okLC, weightLandcover = convertLandcover( rastLandcover, field, landcoverValues)
+    print('Reclassifying hydrology raster.')
+    okHydro, weightHydro = rastReclassify( clipHydro, field, hydroCutoff, 'weightHydro')
+
+    print('Reclassifying Landcover raster.')
+    okLC, weightLandcover = rastReclassify( clipLandcover, field, landcoverValues, 'weightLC')
+
+    if not okSlope or not okHydro or not okLC:
+        print('Problem with reclassify, exiting function')
+        return False, None
     ########################################
 
     ########################################
@@ -112,13 +121,15 @@ def createArchModel( paramFile):
 
     ########################################
     # Perform raster calculations on given rasters
-    outputRast = calcModel( weightSlope, weightHydro, weightLandcover)
+    outputRast = calcModel( weightSlope, weightHydro, weightLandcover, outputRast)
     ########################################
     
     # Save the output raster
 
     # If successful, return value True and output file name
     return True, outputRast
+
+    print('VICTORY!')
 
     
 params = 'parameters.txt'
